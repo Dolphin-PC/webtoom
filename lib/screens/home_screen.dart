@@ -10,7 +10,7 @@ class HomeScreen extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Colors.grey,
+      backgroundColor: Colors.white,
       appBar: AppBar(
         elevation: 2,
         backgroundColor: Colors.white,
@@ -24,10 +24,20 @@ class HomeScreen extends StatelessWidget {
         initialData: [],
         future: webtoons,
         builder: (context, snapshot) {
-          if(snapshot.hasData) {
-            return Text('there is data');
+          if (snapshot.hasData) {
+            return ListView.separated(
+              scrollDirection: Axis.vertical,
+              itemCount: snapshot.data!.length,
+              itemBuilder: (context, index) {
+                var webtoon = snapshot.data![index];
+                return Text(webtoon.title);
+              },
+              separatorBuilder: (context, index) => SizedBox(height: 20),
+            );
           }
-          return Text('Loading...');
+          return const Center(
+            child: CircularProgressIndicator(),
+          );
         },
       ),
     );
