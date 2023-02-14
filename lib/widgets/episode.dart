@@ -3,13 +3,15 @@ import 'package:url_launcher/url_launcher.dart';
 import 'package:webtoom/models/webtoon_episode_model.dart';
 
 class Episode extends StatelessWidget {
-  const Episode({Key? key, required this.episode, required this.webtoonId}) : super(key: key);
+  const Episode({Key? key, required this.episode, required this.webtoonId})
+      : super(key: key);
 
   final WebtoonEpisodeModel episode;
   final String webtoonId;
 
   onButtonTap() async {
-    final url = Uri.parse('https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=${episode.id}');
+    final url = Uri.parse(
+        'https://comic.naver.com/webtoon/detail?titleId=$webtoonId&no=${episode.id}');
     await launchUrl(url);
   }
 
@@ -28,11 +30,16 @@ class Episode extends StatelessWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              Text(
-                episode.title,
-                style: const TextStyle(
-                  color: Colors.green,
-                  fontSize: 16,
+              SizedBox(
+                width: 260,
+                child: Text(
+                  episode.title,
+                  overflow: TextOverflow.fade,
+                  softWrap: false,
+                  style: const TextStyle(
+                    color: Colors.green,
+                    fontSize: 16,
+                  ),
                 ),
               ),
               const Icon(
