@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:url_launcher/url_launcher.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:webtoom/models/webtoon_detail_model.dart';
 import 'package:webtoom/models/webtoon_episode_model.dart';
 import 'package:webtoom/models/webtoon_model.dart';
@@ -18,13 +18,42 @@ class DetailScreen extends StatefulWidget {
 class _DetailScreenState extends State<DetailScreen> {
   late Future<WebtoonDetailModel> webtoonDetailInfo;
   late Future<List<WebtoonEpisodeModel>> episodesInfo;
+  late SharedPreferences prefs;
+  bool isLike = false;
+
+  Future initPrefs() async {
+    prefs = await SharedPreferences.getInstance();
+    final likedToons = prefs.getStringList('likedToons');
+    if (likedToons != null) {
+      if (likedToons.contains(widget.webtoon.id)) {
+        setState(() => isLike = true);
+      }
+    } else {
+      prefs.setStringList('likedToons', []);
+    }
+  }
 
   @override
   void initState() {
     super.initState();
     webtoonDetailInfo = ApiService.getWebtoonById(widget.webtoon.id);
     episodesInfo = ApiService.getLatesEpisodesById(widget.webtoon.id);
+    initPrefs();
   }
+
+  onLikeTap() async {
+    final likedToons = prefs.getStringList('likedToons');
+    if( likedToons != null) {
+      if(isLike) {
+        likedToons.remove(widget.webtoon.id);
+      } else {
+        likedToons.add(widget.webtoon.id);
+      }
+      await prefs.setStringList('likedToons', likedToons);
+    }
+    setState(() => isLike = !isLike);
+  }
+
 
   @override
   Widget build(BuildContext context) {
@@ -36,6 +65,13 @@ class _DetailScreenState extends State<DetailScreen> {
         foregroundColor: Colors.green,
         title: Text(widget.webtoon.title,
             style: const TextStyle(fontSize: 24, fontWeight: FontWeight.w400)),
+        actions: [
+          IconButton(
+            onPressed: onLikeTap,
+            icon:
+                Icon(isLike ? Icons.favorite : Icons.favorite_border_outlined),
+          ),
+        ],
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -96,7 +132,8 @@ class _DetailScreenState extends State<DetailScreen> {
                   return Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
-                      for (var episode in snapshot.data!) Episode(episode: episode, webtoonId : widget.webtoon.id)
+                      for (var episode in snapshot.data!)
+                        Episode(episode: episode, webtoonId: widget.webtoon.id)
                     ],
                   );
                 }
